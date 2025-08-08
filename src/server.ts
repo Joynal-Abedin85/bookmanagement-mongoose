@@ -1,16 +1,32 @@
-import express from "express"
-import cors from "cors"
-import config from "./config"
+import express from "express";
+import cors from "cors";
+import config from "./config";
+import mongoose from "mongoose";
+import bookrouter from "./modules/book/book.routes";
+import borrowrouter from "./modules/borrow/borrow.routes";
 
-const app = express()
+const app = express();
 
-app.use(cors())
-app.use(express.json())
+app.use(cors());
+app.use(express.json());
 
-app.get("/", (req,res) =>  {
-    res.send("hello world ")
-})
+// Routes
+app.use("/api/books", bookrouter);
+app.use("/api/borrow", borrowrouter);
 
-app.listen(config.port , () => {
-    console.log(`server running on port ${5000}`)
-})
+
+// Root
+app.get("/", (req, res) => {
+  res.send("Hello World");
+});
+
+// MongoDB connection
+mongoose
+  .connect(config.database_url as string)
+  .then(() => {
+    console.log(" MongoDB connected");
+    app.listen(config.port, () => {
+      console.log(`Server running on port ${config.port}`);
+    });
+  })
+  .catch((err) => console.error(" DB Connection Error:", err));
